@@ -2,29 +2,35 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"sync"
 )
 
-// AppConfig holds the application configuration
 type AppConfig struct {
-	SsoIssuer string
+	SsoIssuer  string
+	ServerPort int `mapstructure:"server_port"`
 }
 
-// LoadConfig loads the application configuration using viper
-func LoadConfig() (*AppConfig, error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	viper.SetDefault("sso_issuer", "https://accounts.backyard.tapsi.tech/api/v1/sso-user/oidc")
+var (
+	instance *AppConfig
+	once     sync.Once
+)
 
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
-	}
+func LoadConfig() *AppConfig {
+	once.Do(func() {
+		instance = &AppConfig{
+			SsoIssuer:  "https://development.backyard.tapsi.tech/api/v2/user/sso",
+			ServerPort: 8080,
+		}
 
-	var config AppConfig
-	err := viper.Unmarshal(&config)
-	if err != nil {
-		return nil, err
-	}
+		viper.SetConfigName("config")
+		viper.SetConfigType("yaml")
+		viper.AddConfigPath(".")
 
-	return &config, nil
+		err := viper.ReadInConfig()
+		if err == nil {
+			viper.Unmarshal(instance)
+		}
+	})
+
+	return instance
 }
