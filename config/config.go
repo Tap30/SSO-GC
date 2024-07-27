@@ -18,7 +18,7 @@ var (
 func LoadConfig() *AppConfig {
 	once.Do(func() {
 		instance = &AppConfig{
-			SsoIssuer:  "https://development.backyard.tapsi.tech/api/v2/user/sso",
+			SsoIssuer:  "https://accounts.backyard.tapsi.tech/api/v1/sso-user/oidc",
 			ServerPort: 8080,
 		}
 

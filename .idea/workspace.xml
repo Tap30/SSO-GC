@@ -5,13 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a871d7fe-794e-405e-902d-b89374476118" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/api/handler/handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/request/createTokensParams.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/server/server.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/handler/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/handler/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/request/createTokensParams.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/request/createTokensParams.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/server/server.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/app/auth/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/app/auth/auth.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

@@ -17,8 +17,12 @@ func StartServer() {
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
 
-	e.GET("/.well-known/openid-configuration", handler.OpenIDConfigHandler)
-	e.POST("/token", handler.TokenHandler)
+	h := handler.NewHandler()
+
+	e.GET("/.well-known/openid-configuration", h.OpenIDConfigHandler)
+	e.POST("/token", h.TokenHandler)
+	e.POST("/userinfo", h.UserInfoHandler)
+	e.GET("/logout", h.LogoutHandler)
 
 	cfg := config.LoadConfig()
 

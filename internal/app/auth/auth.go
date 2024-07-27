@@ -3,6 +3,7 @@ package auth
 import (
 	"SSO-GC/api/request"
 	"SSO-GC/config"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"github.com/go-resty/resty/v2"
@@ -10,6 +11,11 @@ import (
 	"github.com/patrickmn/go-cache"
 	"net/url"
 	"time"
+)
+
+const (
+	clientId     = "tapsi.platform.scopetest"
+	clientSecret = "2eb3a10f-0387-4976-94d4-a55fec744b1e" // Ensure to replace with the actual client secret
 )
 
 var (
@@ -72,8 +78,6 @@ func getTokensFromTokenEndpoint(authHeader string, formData url.Values) (map[str
 		return nil, errors.New("token endpoint not found in OpenID configuration")
 	}
 
-	log.Info(tokenEndpoint)
-
 	client := resty.New()
 	client.RemoveProxy()
 
@@ -88,7 +92,7 @@ func getTokensFromTokenEndpoint(authHeader string, formData url.Values) (map[str
 	}
 
 	if response.IsError() {
-		log.Error(response.Error())
+		log.Error(response.Error(), " ", response.StatusCode())
 		return nil, errors.New("failed to get tokens from token endpoint")
 	}
 
@@ -100,7 +104,7 @@ func getTokensFromTokenEndpoint(authHeader string, formData url.Values) (map[str
 	return tokens, nil
 }
 
-// Orchestrates the process of getting tokens
+// GetTokens Orchestrates the process of getting tokens
 func GetTokens(params *request.CreateTokensParams) (map[string]interface{}, error) {
 	customClaims, err := createCustomClaims(params)
 	if err != nil {
@@ -114,10 +118,8 @@ func GetTokens(params *request.CreateTokensParams) (map[string]interface{}, erro
 
 	formData := params.ToValues()
 	formData.Add("custom_claims", customClaimsJson)
-	log.Info(formData)
 
-	// Assuming clientAuthHeader is available or retrieved from somewhere
-	clientAuthHeader := "Bearer your_auth_token_here"
+	clientAuthHeader := createClientAuthHeader(clientId, clientSecret)
 	tokens, err := getTokensFromTokenEndpoint(clientAuthHeader, formData)
 	if err != nil {
 		return nil, err
@@ -131,4 +133,44 @@ func GetTokens(params *request.CreateTokensParams) (map[string]interface{}, erro
 	// }
 
 	return tokens, nil
+}
+
+func GetUserInfo(accessToken string) (map[string]interface{}, error) {
+	openidConfig, err := GetOpenIDConfiguration()
+	if err != nil {
+		return nil, err
+	}
+
+	userInfoEndpoint, ok := openidConfig["userinfo_endpoint"].(string)
+	if !ok {
+		return nil, errors.New("userinfo endpoint not found in OpenID configuration")
+	}
+
+	client := resty.New()
+	client.RemoveProxy()
+
+	response, err := client.R().
+		SetHeader("Authorization", "Bearer "+accessToken).
+		Get(userInfoEndpoint)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if response.IsError() {
+		log.Error(response.Error(), " ", response.StatusCode())
+		return nil, errors.New("failed to get user info from userinfo endpoint")
+	}
+
+	var userInfo map[string]interface{}
+	if err := json.Unmarshal(response.Body(), &userInfo); err != nil {
+		return nil, err
+	}
+
+	return userInfo, nil
+}
+
+func createClientAuthHeader(clientId, clientSecret string) string {
+	auth := clientId + ":" + clientSecret
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
 }

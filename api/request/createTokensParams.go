@@ -5,11 +5,11 @@ import (
 )
 
 type CreateTokensParams struct {
-	Code         string
-	RedirectURI  string `json:"redirect_uri"`
-	GrantType    string `json:"grant_type"`
-	RefreshToken string `json:"refresh_token"`
-	CodeVerifier string `json:"code_verifier"`
+	Code         string `form:"code"`
+	RedirectURI  string `form:"redirect_uri"`
+	GrantType    string `form:"grant_type"`
+	RefreshToken string `form:"refresh_token"`
+	CodeVerifier string `form:"code_verifier"`
 }
 
 func (p *CreateTokensParams) ToValues() url.Values {
