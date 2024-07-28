@@ -3,6 +3,11 @@
 ## Overview
 
 The SSO-GC (Single Sign-On for Go Applications) project provides a robust implementation of OAuth 2.0 and OpenID Connect protocols, facilitating secure authentication and authorization functionalities across distributed systems. This system manages user sessions and tokens, enabling applications to authenticate users and access their profile information securely.
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=go" />
+  </a>
+</p>
 
 ## Components
 
