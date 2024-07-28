@@ -13,13 +13,9 @@ import (
 	"time"
 )
 
-const (
-	clientId     = "tapsi.platform.scopetest"
-	clientSecret = "2eb3a10f-0387-4976-94d4-a55fec744b1e" // Ensure to replace with the actual client secret
-)
-
 var (
-	c = cache.New(5*time.Minute, 10*time.Minute)
+	c   = cache.New(5*time.Minute, 10*time.Minute)
+	cfg = config.LoadConfig() // Load the configuration once
 )
 
 // Assuming CustomClaims is a struct that represents your custom claims
@@ -32,8 +28,6 @@ func GetOpenIDConfiguration() (map[string]interface{}, error) {
 	if cachedConfig, found := c.Get(cacheKey); found {
 		return cachedConfig.(map[string]interface{}), nil
 	}
-
-	cfg := config.LoadConfig()
 
 	client := resty.New()
 	client.RemoveProxy()
@@ -119,7 +113,7 @@ func GetTokens(params *request.CreateTokensParams) (map[string]interface{}, erro
 	formData := params.ToValues()
 	formData.Add("custom_claims", customClaimsJson)
 
-	clientAuthHeader := createClientAuthHeader(clientId, clientSecret)
+	clientAuthHeader := createClientAuthHeader(cfg.ClientId, cfg.ClientSecret)
 	tokens, err := getTokensFromTokenEndpoint(clientAuthHeader, formData)
 	if err != nil {
 		return nil, err

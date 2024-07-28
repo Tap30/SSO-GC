@@ -6,8 +6,10 @@ import (
 )
 
 type AppConfig struct {
-	SsoIssuer  string
-	ServerPort int `mapstructure:"server_port"`
+	SsoIssuer    string
+	ServerPort   int    `mapstructure:"server_port"`
+	ClientId     string `mapstructure:"client_id"`
+	ClientSecret string `mapstructure:"client_secret"`
 }
 
 var (
@@ -18,8 +20,10 @@ var (
 func LoadConfig() *AppConfig {
 	once.Do(func() {
 		instance = &AppConfig{
-			SsoIssuer:  "https://accounts.backyard.tapsi.tech/api/v1/sso-user/oidc",
-			ServerPort: 8080,
+			SsoIssuer:    "YOUR_SSO_ISSUER_URL",
+			ServerPort:   8080,
+			ClientId:     "YOUR_CLIENT_ID",
+			ClientSecret: "YOUR_CLIENT_SECRET",
 		}
 
 		viper.SetConfigName("config")

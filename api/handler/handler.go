@@ -2,6 +2,7 @@ package handler
 
 import (
 	"SSO-GC/api/request"
+	"SSO-GC/config"
 	"SSO-GC/internal/app/auth"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -11,13 +12,15 @@ import (
 
 // Handler struct to hold tokens and other related data
 type Handler struct {
+	cfg *config.AppConfig
 	// Optional to hold the SSO tokens
 	tokens map[string]interface{}
 }
 
 // NewHandler creates a new Handler instance
-func NewHandler() *Handler {
+func NewHandler(cfg *config.AppConfig) *Handler {
 	return &Handler{
+		cfg:    cfg,
 		tokens: make(map[string]interface{}),
 	}
 }

@@ -9,15 +9,15 @@ import (
 )
 
 func StartServer() {
-	e := echo.New()
+	cfg := config.LoadConfig()
+	h := handler.NewHandler()
 
+	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"}, // Allows all origins
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
-
-	h := handler.NewHandler()
 
 	e.GET("/.well-known/openid-configuration", h.OpenIDConfigHandler)
 	e.POST("/token", h.TokenHandler)
