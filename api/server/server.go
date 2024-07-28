@@ -8,23 +8,18 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+// StartServer initializes and starts the Echo server with configured routes and middleware.
 func StartServer() {
 	cfg := config.LoadConfig()
-	h := handler.NewHandler()
+	h := handler.NewHandler(cfg)
 
 	e := echo.New()
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"}, // Allows all origins
-		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-	}))
+	e.Use(middleware.CORS())
 
 	e.GET("/.well-known/openid-configuration", h.OpenIDConfigHandler)
 	e.POST("/token", h.TokenHandler)
 	e.POST("/userinfo", h.UserInfoHandler)
 	e.GET("/logout", h.LogoutHandler)
-
-	cfg := config.LoadConfig()
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.ServerPort)))
 }

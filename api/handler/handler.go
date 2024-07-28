@@ -1,23 +1,22 @@
 package handler
 
 import (
+	"net/http"
+	"time"
+
 	"SSO-GC/api/request"
 	"SSO-GC/config"
 	"SSO-GC/internal/app/auth"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
-	"net/http"
-	"time"
 )
 
-// Handler struct to hold tokens and other related data
+// Handler manages tokens and OpenID configurations.
 type Handler struct {
-	cfg *config.AppConfig
-	// Optional to hold the SSO tokens
-	tokens map[string]interface{}
+	cfg    *config.AppConfig
+	tokens map[string]interface{} // Optional
 }
 
-// NewHandler creates a new Handler instance
+// NewHandler initializes a new Handler instance.
 func NewHandler(cfg *config.AppConfig) *Handler {
 	return &Handler{
 		cfg:    cfg,
@@ -25,15 +24,17 @@ func NewHandler(cfg *config.AppConfig) *Handler {
 	}
 }
 
+// OpenIDConfigHandler fetches the OpenID configuration.
 func (h *Handler) OpenIDConfigHandler(c echo.Context) error {
-	config, err := auth.GetOpenIDConfiguration()
+	openIDConfiguration, err := auth.GetOpenIDConfiguration()
 	if err != nil {
-		log.Error(err)
+		c.Logger().Errorf("Failed to get OpenID Configuration: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get OpenID Configuration"})
 	}
-	return c.JSON(http.StatusOK, config)
+	return c.JSON(http.StatusOK, openIDConfiguration)
 }
 
+// TokenHandler generates tokens based on the request parameters.
 func (h *Handler) TokenHandler(c echo.Context) error {
 	var params request.CreateTokensParams
 	if err := c.Bind(&params); err != nil {
@@ -46,16 +47,15 @@ func (h *Handler) TokenHandler(c echo.Context) error {
 
 	tokens, err := auth.GetTokens(&params)
 	if err != nil {
-		log.Error(err)
+		c.Logger().Errorf("Failed to generate tokens: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate tokens"})
 	}
 
-	// Store the tokens in the Handler struct
 	h.tokens = tokens
-
 	return c.JSON(http.StatusOK, tokens)
 }
 
+// UserInfoHandler retrieves user information using the access token.
 func (h *Handler) UserInfoHandler(c echo.Context) error {
 	authHeader := c.Request().Header.Get("Authorization")
 	if authHeader == "" {
@@ -66,38 +66,35 @@ func (h *Handler) UserInfoHandler(c echo.Context) error {
 	if len(authHeader) < len(prefix) || authHeader[:len(prefix)] != prefix {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid Authorization header format"})
 	}
-	accessToken := authHeader[len(prefix):]
 
-	userInfo, err := auth.GetUserInfo(accessToken)
+	userInfo, err := auth.GetUserInfo(authHeader[len(prefix):])
 	if err != nil {
-		log.Error(err)
+		c.Logger().Errorf("Failed to get user info: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get user info"})
 	}
 
 	return c.JSON(http.StatusOK, userInfo)
 }
 
+// LogoutHandler logs out the user by clearing cookies and managing redirect.
 func (h *Handler) LogoutHandler(c echo.Context) error {
 	postLogoutRedirectURI := c.QueryParam("post_logout_redirect_uri")
 	idTokenHint := c.QueryParam("id_token_hint")
 
-	// Validate id_token_hint if no cookie is set
 	if idTokenHint == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "id_token_hint is required"})
 	}
 
-	// Remove cookies
 	for _, cookie := range c.Cookies() {
 		cookie.MaxAge = -1
 		cookie.Expires = time.Unix(0, 0)
 		c.SetCookie(cookie)
 	}
 
-	// If post_logout_redirect_uri is present, respond with 308 and set Location header
 	if postLogoutRedirectURI != "" {
-		return c.Redirect(http.StatusPermanentRedirect, postLogoutRedirectURI)
+		c.Response().Header().Set("Location", postLogoutRedirectURI)
+		return c.JSON(http.StatusPermanentRedirect, nil)
 	}
 
-	// Otherwise, respond with 200 OK and an empty response
 	return c.NoContent(http.StatusOK)
 }

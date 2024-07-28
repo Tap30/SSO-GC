@@ -4,20 +4,22 @@ import (
 	"net/url"
 )
 
+// CreateTokensParams holds the parameters needed for creating tokens in OAuth flows.
 type CreateTokensParams struct {
-	Code         string `form:"code"`
-	RedirectURI  string `form:"redirect_uri"`
-	GrantType    string `form:"grant_type"`
-	RefreshToken string `form:"refresh_token"`
-	CodeVerifier string `form:"code_verifier"`
+	Code         string `form:"code"`          // Code is the authorization code received from the authorization server.
+	RedirectURI  string `form:"redirect_uri"`  // RedirectURI is the URL to which the user will be sent after authorization.
+	GrantType    string `form:"grant_type"`    // GrantType is the type of grant being requested (e.g., authorization_code, refresh_token).
+	RefreshToken string `form:"refresh_token"` // RefreshToken is the token used to obtain additional access tokens.
+	CodeVerifier string `form:"code_verifier"` // CodeVerifier is part of PKCE protection enhancement for OAuth.
 }
 
+// ToValues converts the CreateTokensParams to url.Values for HTTP requests.
 func (p *CreateTokensParams) ToValues() url.Values {
 	values := url.Values{}
 	values.Set("code", p.Code)
 	values.Set("redirect_uri", p.RedirectURI)
 	values.Set("grant_type", p.GrantType)
-	values.Set("code_verifier", p.CodeVerifier)
 	values.Set("refresh_token", p.RefreshToken)
+	values.Set("code_verifier", p.CodeVerifier)
 	return values
 }

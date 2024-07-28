@@ -18,34 +18,12 @@ var (
 	cfg = config.LoadConfig() // Load the configuration once
 )
 
-// Assuming CustomClaims is a struct that represents your custom claims
+// CustomClaims represents your custom claims in the authentication token.
 type CustomClaims struct {
 	// Define the fields according to your requirements
 }
 
-func GetOpenIDConfiguration() (map[string]interface{}, error) {
-	cacheKey := "openid-configuration"
-	if cachedConfig, found := c.Get(cacheKey); found {
-		return cachedConfig.(map[string]interface{}), nil
-	}
-
-	client := resty.New()
-	client.RemoveProxy()
-	resp, err := client.R().Get(cfg.SsoIssuer + "/.well-known/openid-configuration")
-	if err != nil {
-		return nil, err
-	}
-
-	var configMap map[string]interface{}
-	if err := json.Unmarshal(resp.Body(), &configMap); err != nil {
-		return nil, err
-	}
-
-	c.Set(cacheKey, configMap, cache.DefaultExpiration)
-	return configMap, nil
-}
-
-// Converts custom claims to JSON
+// ToJson converts CustomClaims to a JSON string.
 func (cc *CustomClaims) ToJson() (string, error) {
 	data, err := json.Marshal(cc)
 	if err != nil {
@@ -54,13 +32,54 @@ func (cc *CustomClaims) ToJson() (string, error) {
 	return string(data), nil
 }
 
-// Placeholder for creating custom claims based on CreateTokensParams
+// createCustomClaims generates custom claims based on provided parameters.
 func createCustomClaims(params *request.CreateTokensParams) (*CustomClaims, error) {
-	// Placeholder implementation
+	// Implementation specific to your business logic
 	return &CustomClaims{}, nil
 }
 
-// Sends a POST request to the token endpoint with the form data and custom claims
+// GetOpenIDConfiguration retrieves the OpenID configuration, caching it to optimize performance.
+func GetOpenIDConfiguration() (map[string]interface{}, error) {
+	cacheKey := "openid-configuration"
+	if cachedConfig, found := c.Get(cacheKey); found {
+		return cachedConfig.(map[string]interface{}), nil
+	}
+
+	client := resty.New().RemoveProxy()
+	resp, err := client.R().Get(cfg.SsoIssuer + "/.well-known/openid-configuration")
+	if err != nil {
+		return nil, err
+	}
+
+	var configMap map[string]interface{}
+	if err = json.Unmarshal(resp.Body(), &configMap); err != nil {
+		return nil, err
+	}
+
+	c.Set(cacheKey, configMap, cache.DefaultExpiration)
+	return configMap, nil
+}
+
+// GetTokens orchestrates the token retrieval process.
+func GetTokens(params *request.CreateTokensParams) (map[string]interface{}, error) {
+	customClaims, err := createCustomClaims(params)
+	if err != nil {
+		return nil, err
+	}
+
+	customClaimsJson, err := customClaims.ToJson()
+	if err != nil {
+		return nil, err
+	}
+
+	formData := params.ToValues()
+	formData.Add("custom_claims", customClaimsJson)
+
+	clientAuthHeader := createClientAuthHeader(cfg.ClientId, cfg.ClientSecret)
+	return getTokensFromTokenEndpoint(clientAuthHeader, formData)
+}
+
+// getTokensFromTokenEndpoint sends a POST request to fetch tokens.
 func getTokensFromTokenEndpoint(authHeader string, formData url.Values) (map[string]interface{}, error) {
 	openidConfig, err := GetOpenIDConfiguration()
 	if err != nil {
@@ -72,12 +91,12 @@ func getTokensFromTokenEndpoint(authHeader string, formData url.Values) (map[str
 		return nil, errors.New("token endpoint not found in OpenID configuration")
 	}
 
-	client := resty.New()
-	client.RemoveProxy()
-
+	client := resty.New().RemoveProxy()
 	response, err := client.R().
-		SetHeader("Content-Type", "application/x-www-form-urlencoded").
-		SetHeader("Authorization", authHeader).
+		SetHeaders(map[string]string{
+			"Content-Type":  "application/x-www-form-urlencoded",
+			"Authorization": authHeader,
+		}).
 		SetFormDataFromValues(formData).
 		Post(tokenEndpoint)
 
@@ -98,37 +117,7 @@ func getTokensFromTokenEndpoint(authHeader string, formData url.Values) (map[str
 	return tokens, nil
 }
 
-// GetTokens Orchestrates the process of getting tokens
-func GetTokens(params *request.CreateTokensParams) (map[string]interface{}, error) {
-	customClaims, err := createCustomClaims(params)
-	if err != nil {
-		return nil, err
-	}
-
-	customClaimsJson, err := customClaims.ToJson()
-	if err != nil {
-		return nil, err
-	}
-
-	formData := params.ToValues()
-	formData.Add("custom_claims", customClaimsJson)
-
-	clientAuthHeader := createClientAuthHeader(cfg.ClientId, cfg.ClientSecret)
-	tokens, err := getTokensFromTokenEndpoint(clientAuthHeader, formData)
-	if err != nil {
-		return nil, err
-	}
-
-	// Placeholder for updateUser logic
-	// Assuming updateUser updates user information based on tokens and returns nil on success
-	// err = updateUser(tokens)
-	// if err != nil {
-	//     return nil, err
-	// }
-
-	return tokens, nil
-}
-
+// GetUserInfo retrieves user information using the access token.
 func GetUserInfo(accessToken string) (map[string]interface{}, error) {
 	openidConfig, err := GetOpenIDConfiguration()
 	if err != nil {
@@ -140,9 +129,7 @@ func GetUserInfo(accessToken string) (map[string]interface{}, error) {
 		return nil, errors.New("userinfo endpoint not found in OpenID configuration")
 	}
 
-	client := resty.New()
-	client.RemoveProxy()
-
+	client := resty.New().RemoveProxy()
 	response, err := client.R().
 		SetHeader("Authorization", "Bearer "+accessToken).
 		Get(userInfoEndpoint)
@@ -164,6 +151,7 @@ func GetUserInfo(accessToken string) (map[string]interface{}, error) {
 	return userInfo, nil
 }
 
+// createClientAuthHeader generates the HTTP Basic Authentication header.
 func createClientAuthHeader(clientId, clientSecret string) string {
 	auth := clientId + ":" + clientSecret
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
