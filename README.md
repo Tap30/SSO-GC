@@ -2,7 +2,8 @@
 
 ## Overview
 
-The SSO-GC (Single Sign-On for Go Applications) project provides a robust implementation of OAuth 2.0 and OpenID Connect protocols, facilitating secure authentication and authorization functionalities across distributed systems. This system manages user sessions and tokens, enabling applications to authenticate users and access their profile information securely.
+The SSO-GC (Single Sign-On for Go Applications) project provides a robust implementation of OAuth 2.0 and OpenID Connect protocols, facilitating secure authentication and authorization functionalities across distributed systems. This system manages user sessions and tokens, enabling applications to
+authenticate users and access their profile information securely.
 <p align="center">
   <a href="https://skillicons.dev">
     <img src="https://skillicons.dev/icons?i=go" />
@@ -12,15 +13,19 @@ The SSO-GC (Single Sign-On for Go Applications) project provides a robust implem
 ## Components
 
 ### `config`
+
 Handles application configuration loaded from YAML files using Viper. It manages configurations such as SSO issuer URL, server port, client ID, and client secret.
 
 ### `handler`
+
 Manages HTTP request handling, interfacing with the authentication logic to serve OpenID Connect configuration, tokens, user information, and logout functionalities.
 
 ### `auth`
+
 Contains core authentication logic, including the retrieval of OpenID configurations, token generation, user information fetching, and custom claim handling.
 
 ### `server`
+
 Sets up the HTTP server using Echo, defining routes and middleware configurations necessary for handling OAuth and OpenID Connect requests.
 
 ## APIs
@@ -67,4 +72,5 @@ This project implements standard security protocols and complies with OAuth 2.0 
 
 ## Configuration
 
-The application's configuration is managed through a `config.yaml` file, which must specify keys such as `server_port`, `sso_issuer`, `client_id`, and `client_secret`. Errors in configuration loading or parsing are handled with immediate log output and system halt to prevent startup with incorrect settings.
+The application's configuration is managed through a `config.yaml` file, which must specify keys such as `server_port`, `sso_issuer`, `client_id`, and `client_secret`. Errors in configuration loading or parsing are handled with immediate log output and system halt to prevent startup with incorrect
+settings.

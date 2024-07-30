@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"github.com/labstack/gommon/log"
 
 	"github.com/spf13/viper"
 	"sync"
@@ -35,7 +35,7 @@ func LoadConfig() *AppConfig {
 		}
 
 		if err := viper.ReadInConfig(); err != nil {
-			log.Fatalf("Error reading config file, %s", err)
+			log.Warnf("Error reading config file, %s", err)
 		}
 
 		if err := viper.Unmarshal(instance); err != nil {

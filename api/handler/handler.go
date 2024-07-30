@@ -41,14 +41,38 @@ func (h *Handler) TokenHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request parameters"})
 	}
 
-	if code := c.QueryParam("code"); code != "" {
-		params.Code = code
-	}
-
 	tokens, err := auth.GetTokens(&params)
 	if err != nil {
 		c.Logger().Errorf("Failed to generate tokens: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate tokens"})
+	}
+
+	// Set cookies for the tokens
+	if accessToken, ok := tokens["access_token"].(string); ok {
+		c.SetCookie(&http.Cookie{
+			Name:     "access_token",
+			Value:    accessToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+		})
+	}
+
+	if refreshToken, ok := tokens["refresh_token"].(string); ok {
+		c.SetCookie(&http.Cookie{
+			Name:     "refresh_token",
+			Value:    refreshToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+		})
+	}
+
+	if idToken, ok := tokens["id_token"].(string); ok {
+		c.SetCookie(&http.Cookie{
+			Name:  "id_token",
+			Value: idToken,
+		})
 	}
 
 	h.tokens = tokens
