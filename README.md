@@ -71,7 +71,9 @@ Sets up the HTTP server using Echo, defining routes and middleware configuration
 
 ## APIs
 
-![Authorization Code Flow](assets/Authorization%20Code%20Flow.png)
+<p align="center">
+  <img src="assets/Authorization%20Code%20Flow.png" alt="Authorization Code Flow">
+</p>
 
 *There are also some comments in codes that demonstrate which step of the flow is being implemented.
 
