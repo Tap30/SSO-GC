@@ -10,6 +10,47 @@ authenticate users and access their profile information securely.
   </a>
 </p>
 
+## Up and Running
+
+You can run the project using either `go run` or `docker-compose`.
+
+### Using `go run`
+
+```sh
+go run main.go
+```
+
+### Using `docker-compose`
+
+```sh
+docker-compose -f deploy/docker-compose.yaml up
+```
+
+## Configuration
+
+The application's configuration is managed through a `config.yaml` file, which must specify keys such as `server_port`, `sso_issuer`, `client_id`, and `client_secret`. Errors in configuration loading or parsing are handled with immediate log output and system halt to prevent startup with incorrect settings.
+
+If you are using `docker-compose`, you should change the environment variables in the `docker-compose.yaml` file to match your configuration:
+
+```yaml
+version: '3.8'
+
+services:
+  sso-gc:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+    image: sso-gc:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - CLIENT_ID=YOUR_CLIENT_ID
+      - CLIENT_SECRET=YOUR_CLIENT_SECRET
+      - SSO_ISSUER=https://demo-accounts-api.tapsi.ir/api/v1/sso-user/oidc
+```
+
+
 ## Components
 
 ### `config`
@@ -69,8 +110,3 @@ Terminates the user's session and clears relevant cookies. Optionally redirects 
 ## Security and Compliance
 
 This project implements standard security protocols and complies with OAuth 2.0 and OpenID Connect specifications to ensure secure transmission of information. CORS is configured for cross-origin resource sharing, allowing the server to interact securely with resources from different domains.
-
-## Configuration
-
-The application's configuration is managed through a `config.yaml` file, which must specify keys such as `server_port`, `sso_issuer`, `client_id`, and `client_secret`. Errors in configuration loading or parsing are handled with immediate log output and system halt to prevent startup with incorrect
-settings.

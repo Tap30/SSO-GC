@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  sso-gc:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+    image: sso-gc:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - CLIENT_ID=YOUR_CLIENT_ID
+      - CLIENT_SECRET=YOUR_CLIENT_SECRET
+      - SSO_ISSUER=https://demo-accounts-api.tapsi.ir/api/v1/sso-user/oidc
