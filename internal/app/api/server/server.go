@@ -1,9 +1,9 @@
 package server
 
 import (
-	"SSO-GC/api/handler"
-	"SSO-GC/api/server/custommiddleware"
-	"SSO-GC/config"
+	"SSO-GC/internal/app/api/handler"
+	"SSO-GC/internal/app/api/server/custommiddleware"
+	"SSO-GC/internal/app/config"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -26,4 +26,5 @@ func StartServer() {
 	e.GET("/logout", h.LogoutHandler, keyAuthMiddleware)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.ServerPort)))
+	// sd
 }

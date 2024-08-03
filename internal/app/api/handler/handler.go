@@ -1,11 +1,11 @@
 package handler
 
 import (
+	"SSO-GC/internal/app/api/request"
+	"SSO-GC/internal/app/config"
 	"net/http"
 	"time"
 
-	"SSO-GC/api/request"
-	"SSO-GC/config"
 	"SSO-GC/internal/app/auth"
 	"github.com/labstack/echo/v4"
 )
