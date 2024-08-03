@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"SSO-GC/api/request"
-	"SSO-GC/config"
+	"SSO-GC/internal/app/api/request"
+	"SSO-GC/internal/app/config"
 	"encoding/base64"
 	"encoding/json"
 	"errors"

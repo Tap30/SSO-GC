@@ -1,0 +1,4 @@
+server_port: 8080
+client_id: "YOUR_CLIENT_ID"
+client_secret: "YOUR_CLIENT_SECRET"
+sso_issuer: "https://demo-accounts-api.tapsi.ir/api/v1/sso-user/oidc"

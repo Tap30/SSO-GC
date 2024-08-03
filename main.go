@@ -1,7 +1,7 @@
 package main
 
 import (
-	"SSO-GC/api/server"
+	"SSO-GC/internal/app/api/server"
 )
 
 func main() {
