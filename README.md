@@ -71,6 +71,10 @@ Sets up the HTTP server using Echo, defining routes and middleware configuration
 
 ## APIs
 
+![Authorization Code Flow](assets/Authorization%20Code%20Flow.png)
+
+*There are also some comments in codes that demonstrate which step of the flow is being implemented.
+
 ### OpenID Configuration
 
 **Endpoint:** `GET /.well-known/openid-configuration`

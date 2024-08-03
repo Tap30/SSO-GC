@@ -39,6 +39,7 @@ func createCustomClaims(params *request.CreateTokensParams) (*CustomClaims, erro
 }
 
 // GetOpenIDConfiguration retrieves the OpenID configuration, caching it to optimize performance.
+// STEP 3 & 4 in flow
 func GetOpenIDConfiguration() (map[string]interface{}, error) {
 	cacheKey := "openid-configuration"
 	if cachedConfig, found := c.Get(cacheKey); found {
@@ -61,6 +62,7 @@ func GetOpenIDConfiguration() (map[string]interface{}, error) {
 }
 
 // GetTokens orchestrates the token retrieval process.
+// Step 8 - 11 in flow
 func GetTokens(params *request.CreateTokensParams) (map[string]interface{}, error) {
 	customClaims, err := createCustomClaims(params)
 	if err != nil {
@@ -118,6 +120,7 @@ func getTokensFromTokenEndpoint(authHeader string, formData url.Values) (map[str
 }
 
 // GetUserInfo retrieves user information using the access token.
+// Step 12 - 15 in flow
 func GetUserInfo(accessToken string) (map[string]interface{}, error) {
 	openidConfig, err := GetOpenIDConfiguration()
 	if err != nil {
